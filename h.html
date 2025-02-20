@@ -1,1 +1,65 @@
-</html>
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.application.Application;
+import javafx.scene.Scene;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.ArcType;
+import javafx.stage.Stage;
+import javafx.util.Duration;
+
+import java.time.LocalTime;
+
+public class AnalogClock extends Application {
+    
+    private static final int CLOCK_SIZE = 300;
+    private static final int CENTER = CLOCK_SIZE / 2;
+    private static final int HAND_LENGTH_HOUR = 70;
+    private static final int HAND_LENGTH_MIN = 100;
+    private static final int HAND_LENGTH_SEC = 120;
+
+    public static void main(String[] args) {
+        launch(args);
+    }
+
+    @Override
+    public void start(Stage primaryStage) {
+        Canvas canvas = new Canvas(CLOCK_SIZE, CLOCK_SIZE);
+        GraphicsContext gc = canvas.getGraphicsContext2D();
+
+        Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(1), e -> drawClock(gc)));
+        timeline.setCycleCount(Timeline.INDEFINITE);
+        timeline.play();
+
+        drawClock(gc); // Initial draw
+        primaryStage.setScene(new Scene(new StackPane(canvas), CLOCK_SIZE, CLOCK_SIZE));
+        primaryStage.setTitle("Analog Clock");
+        primaryStage.show();
+    }
+
+    private void drawClock(GraphicsContext gc) {
+        gc.clearRect(0, 0, CLOCK_SIZE, CLOCK_SIZE);
+
+        // Draw clock face
+        gc.setStroke(Color.BLACK);
+        gc.setLineWidth(3);
+        gc.strokeOval(10, 10, CLOCK_SIZE - 20, CLOCK_SIZE - 20);
+
+        LocalTime now = LocalTime.now();
+        drawHand(gc, now.getHour() % 12 * 30 + now.getMinute() * 0.5, HAND_LENGTH_HOUR, Color.BLACK, 5);
+        drawHand(gc, now.getMinute() * 6, HAND_LENGTH_MIN, Color.BLUE, 3);
+        drawHand(gc, now.getSecond() * 6, HAND_LENGTH_SEC, Color.RED, 2);
+    }
+
+    private void drawHand(GraphicsContext gc, double angle, double length, Color color, double width) {
+        double radians = Math.toRadians(angle - 90);
+        double endX = CENTER + length * Math.cos(radians);
+        double endY = CENTER + length * Math.sin(radians);
+
+        gc.setStroke(color);
+        gc.setLineWidth(width);
+        gc.strokeLine(CENTER, CENTER, endX, endY);
+    }
+}</html>
